@@ -2,7 +2,7 @@ export interface UniversityTask {
   id: string
   subject: string
   topic: string
-  duration: number // hours
+  duration: number // hours (1-4)
   type: 'university'
 }
 
@@ -10,15 +10,19 @@ export interface DevTask {
   id: string
   project: string
   techStack: string[]
-  complexity: number // 1-9
+  complexity: 'Low' | 'Medium' | 'High'
   type: 'dev'
 }
 
 export type Task = UniversityTask | DevTask
 
 export interface ScheduleDay {
-  day: string
+  id: string
+  date: string // ISO date string
+  day: string // day name (Monday, etc.)
+  isToday: boolean
   tasks: Task[]
+  energyPoints: number // Sum of task weights (max 10 recommended)
 }
 
 export const TECH_STACK_OPTIONS = [

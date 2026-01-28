@@ -1,78 +1,46 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Zap, RotateCcw } from 'lucide-react'
-import type { UniversityTask, DevTask, ScheduleDay } from '@/lib/planner-types'
-import { DAYS_OF_WEEK } from '@/lib/planner-types'
+import { useDualStream } from '@/hooks/useDualStream'
 import { UniversityStream } from './university-stream'
 import { DevStream } from './dev-stream'
 import { MergedTimeline } from './merged-timeline'
 
 export function DualStreamPlanner() {
-  const [universityTasks, setUniversityTasks] = useState<UniversityTask[]>([])
-  const [devTasks, setDevTasks] = useState<DevTask[]>([])
-  const [schedule, setSchedule] = useState<ScheduleDay[]>([])
   const [isMerging, setIsMerging] = useState(false)
-
-  const addUniversityTask = useCallback((task: UniversityTask) => {
-    setUniversityTasks((prev) => [...prev, task])
-  }, [])
-
-  const removeUniversityTask = useCallback((id: string) => {
-    setUniversityTasks((prev) => prev.filter((t) => t.id !== id))
-  }, [])
-
-  const addDevTask = useCallback((task: DevTask) => {
-    setDevTasks((prev) => [...prev, task])
-  }, [])
-
-  const removeDevTask = useCallback((id: string) => {
-    setDevTasks((prev) => prev.filter((t) => t.id !== id))
-  }, [])
-
-  const mergeStreams = useCallback(async () => {
-    if (universityTasks.length === 0 && devTasks.length === 0) return
-
+  
+  // Use the intelligent load-balancing zipper algorithm hook
+  const {
+    uniQueue,
+    devQueue,
+    schedule,
+    addUniTask,
+    addDevTask,
+    removeTask,
+    mergeStreams: executeMerge,
+    resetAll,
+    totalTasks,
+  } = useDualStream()
+  
+  // Wrapper to handle merge with animation
+  const handleMergeStreams = async () => {
+    if (totalTasks === 0) return
+    
     setIsMerging(true)
-
-    // Simulate processing time
+    
+    // Simulate processing time for visual feedback
     await new Promise((resolve) => setTimeout(resolve, 800))
-
-    // Simple distribution algorithm
-    const allTasks = [
-      ...universityTasks.map((t) => ({ ...t })),
-      ...devTasks.map((t) => ({ ...t })),
-    ]
-
-    // Shuffle tasks
-    const shuffled = allTasks.sort(() => Math.random() - 0.5)
-
-    // Distribute across days
-    const daysNeeded = Math.min(7, Math.ceil(shuffled.length / 2))
-    const newSchedule: ScheduleDay[] = []
-
-    for (let i = 0; i < daysNeeded; i++) {
-      const dayTasks = shuffled.slice(i * Math.ceil(shuffled.length / daysNeeded), (i + 1) * Math.ceil(shuffled.length / daysNeeded))
-      if (dayTasks.length > 0) {
-        newSchedule.push({
-          day: DAYS_OF_WEEK[i],
-          tasks: dayTasks,
-        })
-      }
-    }
-
-    setSchedule(newSchedule)
+    
+    // Execute the load-balancing zipper algorithm
+    executeMerge()
+    
     setIsMerging(false)
-  }, [universityTasks, devTasks])
-
-  const resetAll = useCallback(() => {
-    setUniversityTasks([])
-    setDevTasks([])
-    setSchedule([])
-  }, [])
-
-  const totalTasks = universityTasks.length + devTasks.length
+  }
+  
+  const handleRemoveUniTask = (id: string) => removeTask(id, 'university')
+  const handleRemoveDevTask = (id: string) => removeTask(id, 'dev')
 
   return (
     <div className="min-h-screen bg-zinc-950">
@@ -115,14 +83,14 @@ export function DualStreamPlanner() {
         {/* Input streams */}
         <div className="mb-12 flex flex-col gap-8 lg:flex-row">
           <UniversityStream
-            tasks={universityTasks}
-            onAddTask={addUniversityTask}
-            onRemoveTask={removeUniversityTask}
+            tasks={uniQueue}
+            onAddTask={addUniTask}
+            onRemoveTask={handleRemoveUniTask}
           />
           <DevStream
-            tasks={devTasks}
+            tasks={devQueue}
             onAddTask={addDevTask}
-            onRemoveTask={removeDevTask}
+            onRemoveTask={handleRemoveDevTask}
           />
         </div>
 
@@ -136,7 +104,7 @@ export function DualStreamPlanner() {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={mergeStreams}
+            onClick={handleMergeStreams}
             disabled={totalTasks === 0 || isMerging}
             className="group relative overflow-hidden rounded-xl px-8 py-4 font-mono text-sm font-medium uppercase tracking-wider transition-all disabled:cursor-not-allowed disabled:opacity-50"
           >

@@ -72,22 +72,37 @@ export function MergedTimeline({ schedule, isMerging }: MergedTimelineProps) {
           <AnimatePresence mode="wait">
             {schedule.map((day, dayIndex) => (
               <motion.div
-                key={day.day}
+                key={day.id}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ duration: 0.4, delay: dayIndex * 0.1 }}
                 className="relative"
               >
-                {/* Day label */}
+                {/* Day label with energy points */}
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: 'spring', stiffness: 500, delay: dayIndex * 0.1 }}
                   className="absolute left-1/2 top-0 z-20 -translate-x-1/2"
                 >
-                  <div className="rounded-full border border-zinc-600 bg-zinc-900 px-4 py-1.5 shadow-lg shadow-zinc-950/50">
-                    <span className="font-mono text-xs font-medium text-zinc-400">{day.day}</span>
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="rounded-full border border-zinc-600 bg-zinc-900 px-4 py-1.5 shadow-lg shadow-zinc-950/50">
+                      <span className="font-mono text-xs font-medium text-zinc-400">{day.day}</span>
+                    </div>
+                    {/* Energy indicator */}
+                    <div className="flex items-center gap-1 rounded-full border border-zinc-800 bg-zinc-950 px-2 py-0.5">
+                      <div className={`h-1.5 w-1.5 rounded-full ${
+                        day.energyPoints > 10 
+                          ? 'bg-red-500' 
+                          : day.energyPoints > 8 
+                          ? 'bg-yellow-500' 
+                          : 'bg-green-500'
+                      }`} />
+                      <span className="font-mono text-[10px] text-zinc-500">
+                        {day.energyPoints}⚡
+                      </span>
+                    </div>
                   </div>
                 </motion.div>
 
@@ -168,16 +183,19 @@ export function MergedTimeline({ schedule, isMerging }: MergedTimelineProps) {
                             <Code className="h-3 w-3 text-zinc-400" />
                             <span className="font-mono text-xs text-zinc-300">{task.project}</span>
                             <div className="flex items-center gap-0.5">
-                              {Array.from({ length: 3 }).map((_, i) => (
-                                <div
-                                  key={i}
-                                  className={`h-1 w-1 rounded-sm ${
-                                    i < Math.ceil(task.complexity / 3)
-                                      ? 'bg-zinc-400'
-                                      : 'bg-zinc-700'
-                                  }`}
-                                />
-                              ))}
+                              {Array.from({ length: 3 }).map((_, i) => {
+                                const complexityLevel = task.complexity === 'Low' ? 1 : task.complexity === 'Medium' ? 2 : 3
+                                return (
+                                  <div
+                                    key={i}
+                                    className={`h-1 w-1 rounded-sm ${
+                                      i < complexityLevel
+                                        ? 'bg-zinc-400'
+                                        : 'bg-zinc-700'
+                                    }`}
+                                  />
+                                )
+                              })}
                             </div>
                           </div>
 
