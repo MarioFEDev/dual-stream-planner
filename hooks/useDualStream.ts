@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import type { UniversityTask, DevTask, ScheduleDay } from '@/lib/planner-types'
+import { loadState, saveState, clearState } from '@/lib/storage'
 
 // Algorithm Constants
 const MAX_ENERGY_PER_DAY = 10
@@ -52,10 +53,33 @@ function getDayName(date: string): string {
 }
 
 export function useDualStream() {
+  // Initialize state from localStorage (will be empty array on SSR, loaded on client)
+  const [isInitialized, setIsInitialized] = useState(false)
   const [uniQueue, setUniQueue] = useState<UniversityTask[]>([])
   const [devQueue, setDevQueue] = useState<DevTask[]>([])
   const [schedule, setSchedule] = useState<ScheduleDay[]>([])
   const [startDate] = useState<Date>(new Date())
+
+  // Load state from localStorage on mount (client-side only)
+  useEffect(() => {
+    const savedState = loadState()
+    setUniQueue(savedState.uniQueue)
+    setDevQueue(savedState.devQueue)
+    setSchedule(savedState.schedule)
+    setIsInitialized(true)
+  }, [])
+
+  // Auto-save to localStorage whenever state changes
+  useEffect(() => {
+    // Skip saving on initial render before loading from localStorage
+    if (!isInitialized) return
+
+    saveState({
+      uniQueue,
+      devQueue,
+      schedule,
+    })
+  }, [uniQueue, devQueue, schedule, isInitialized])
 
   /**
    * Add a university task to the queue
@@ -215,12 +239,13 @@ export function useDualStream() {
   }, [uniQueue, devQueue, generateSchedule])
 
   /**
-   * Reset everything
+   * Reset everything (including localStorage)
    */
   const resetAll = useCallback(() => {
     setUniQueue([])
     setDevQueue([])
     setSchedule([])
+    clearState()
   }, [])
 
   return {
