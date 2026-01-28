@@ -4,6 +4,19 @@ This document records the specific AI prompts used to generate the UI, implement
 
 ---
 
+## 🎙️ Workflow Highlight: Voice-Integrated Engineering
+**Tool:** Wispr Flow
+**Impact:** 3x Faster Iteration Speed
+
+Before executing the technical prompts below, I integrated **Wispr Flow** into my development loop to bypass the "typing bottleneck." By treating my IDE as a voice-first interface, I was able to articulate complex architectural constraints—like the "Glassmorphism" layering and the "Energy Point" logic—naturally and rapidly.
+
+This "Voice-to-Prompt" workflow allowed me to inject rich, nuanced context into Cursor/v0 without the friction of manual drafting.
+
+> **The "Wispr" Input (Transcribed):**
+> *"Okay, for the timeline visualization, I don't want just a boring list. I want it to look like a zipper or a DNA strand where the left side is the school stuff and the right side is the coding stuff, and they merge in the middle. Also, make sure that if I have a really hard coding task, it doesn't put it on the same day as a long study session because that would burn me out. Use some kind of point system to balance that."*
+>
+> **The Result:** This raw stream-of-consciousness was instantly converted into the structured constraints found in the Master Prompts below.
+
 ## Phase 1: The Foundation (Master Prompts)
 
 ### 1. UI Generation (Tool: v0.dev)
