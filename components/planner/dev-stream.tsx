@@ -6,6 +6,7 @@ import { Terminal, Plus, X } from 'lucide-react'
 import type { DevTask } from '@/lib/planner-types'
 import { TECH_STACK_OPTIONS } from '@/lib/planner-types'
 import { ComplexityMatrix } from './complexity-matrix'
+import { generateId } from '@/lib/uuid'
 
 interface DevStreamProps {
   tasks: DevTask[]
@@ -16,12 +17,12 @@ interface DevStreamProps {
 export function DevStream({ tasks, onAddTask, onRemoveTask }: DevStreamProps) {
   const [project, setProject] = useState('')
   const [techStack, setTechStack] = useState<string[]>([])
-  const [complexity, setComplexity] = useState<'Low' | 'Medium' | 'High'>('Medium')
+  const [complexity, setComplexity] = useState(5)
 
   const handleAdd = () => {
     if (!project.trim() || techStack.length === 0) return
     onAddTask({
-      id: crypto.randomUUID(),
+      id: generateId(),
       project: project.trim(),
       techStack,
       complexity,
@@ -29,7 +30,7 @@ export function DevStream({ tasks, onAddTask, onRemoveTask }: DevStreamProps) {
     })
     setProject('')
     setTechStack([])
-    setComplexity('Medium')
+    setComplexity(5)
   }
 
   const toggleTech = (tech: string) => {
@@ -146,19 +147,16 @@ export function DevStream({ tasks, onAddTask, onRemoveTask }: DevStreamProps) {
                       {task.techStack.length > 2 && '...'}]
                     </span>
                     <div className="flex items-center gap-0.5">
-                      {Array.from({ length: 3 }).map((_, i) => {
-                        const complexityLevel = task.complexity === 'Low' ? 1 : task.complexity === 'Medium' ? 2 : 3
-                        return (
-                          <div
-                            key={i}
-                            className={`h-1.5 w-1.5 rounded-sm ${
-                              i < complexityLevel
-                                ? 'bg-zinc-400'
-                                : 'bg-zinc-800'
-                            }`}
-                          />
-                        )
-                      })}
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`h-1.5 w-1.5 rounded-sm ${
+                            i < Math.ceil(task.complexity / 3)
+                              ? 'bg-zinc-400'
+                              : 'bg-zinc-800'
+                          }`}
+                        />
+                      ))}
                     </div>
                     <button
                       onClick={() => onRemoveTask(task.id)}

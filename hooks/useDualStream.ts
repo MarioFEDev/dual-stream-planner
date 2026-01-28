@@ -4,11 +4,6 @@ import type { UniversityTask, DevTask, ScheduleDay } from '@/lib/planner-types'
 // Algorithm Constants
 const MAX_ENERGY_PER_DAY = 10
 const UNI_WEIGHT_MULTIPLIER = 2 // duration * 2
-const DEV_COMPLEXITY_WEIGHTS = {
-  Low: 3,
-  Medium: 5,
-  High: 8,
-} as const
 
 /**
  * Calculate energy cost for a university task
@@ -19,9 +14,15 @@ function calculateUniEnergy(task: UniversityTask): number {
 
 /**
  * Calculate energy cost for a dev task
+ * Maps 1-9 complexity to energy points:
+ * 1-3 = Low (2-4 points)
+ * 4-6 = Medium (4-6 points)
+ * 7-9 = High (7-9 points)
  */
 function calculateDevEnergy(task: DevTask): number {
-  return DEV_COMPLEXITY_WEIGHTS[task.complexity]
+  // Linear mapping: complexity value = energy points
+  // This gives us a range of 1-9 points based on complexity
+  return task.complexity
 }
 
 /**

@@ -10,7 +10,7 @@ export interface DevTask {
   id: string
   project: string
   techStack: string[]
-  complexity: 'Low' | 'Medium' | 'High'
+  complexity: number // 1-9 scale
   type: 'dev'
 }
 

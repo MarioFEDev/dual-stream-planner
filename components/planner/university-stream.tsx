@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { GraduationCap, Plus, X } from 'lucide-react'
 import type { UniversityTask } from '@/lib/planner-types'
 import { CircularDurationSlider } from './circular-duration-slider'
+import { generateId } from '@/lib/uuid'
 
 interface UniversityStreamProps {
   tasks: UniversityTask[]
@@ -20,7 +21,7 @@ export function UniversityStream({ tasks, onAddTask, onRemoveTask }: UniversityS
   const handleAdd = () => {
     if (!subject.trim() || !topic.trim()) return
     onAddTask({
-      id: crypto.randomUUID(),
+      id: generateId(),
       subject: subject.trim(),
       topic: topic.trim(),
       duration,

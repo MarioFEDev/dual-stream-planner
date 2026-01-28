@@ -183,19 +183,16 @@ export function MergedTimeline({ schedule, isMerging }: MergedTimelineProps) {
                             <Code className="h-3 w-3 text-zinc-400" />
                             <span className="font-mono text-xs text-zinc-300">{task.project}</span>
                             <div className="flex items-center gap-0.5">
-                              {Array.from({ length: 3 }).map((_, i) => {
-                                const complexityLevel = task.complexity === 'Low' ? 1 : task.complexity === 'Medium' ? 2 : 3
-                                return (
-                                  <div
-                                    key={i}
-                                    className={`h-1 w-1 rounded-sm ${
-                                      i < complexityLevel
-                                        ? 'bg-zinc-400'
-                                        : 'bg-zinc-700'
-                                    }`}
-                                  />
-                                )
-                              })}
+                              {Array.from({ length: 3 }).map((_, i) => (
+                                <div
+                                  key={i}
+                                  className={`h-1 w-1 rounded-sm ${
+                                    i < Math.ceil(task.complexity / 3)
+                                      ? 'bg-zinc-400'
+                                      : 'bg-zinc-700'
+                                  }`}
+                                />
+                              ))}
                             </div>
                           </div>
 
